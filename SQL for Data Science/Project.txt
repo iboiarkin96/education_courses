@@ -342,27 +342,56 @@ Part 2: Inferences and Analysis
 1. Pick one city and category of your choice and group the businesses in that city or category by their overall star rating. Compare the businesses with 2-3 stars to the businesses with 4-5 stars and answer the following questions. Include your code.
 	
 i. Do the two groups you chose to analyze have a different distribution of hours?
-
+	In this sample distribution of hours in two groups look like different. In 2-3 hour's group there is preferably morning time, in 4-5 hour's is evening on night time. 
 
 ii. Do the two groups you chose to analyze have a different number of reviews?
-         
+         Yes, in first group mean rating is more bigger than in the second 
          
 iii. Are you able to infer anything from the location data provided between these two groups? Explain.
-
+	No, in same location there are both of infer group.	
 SQL code used for analysis:
+SELECT b.name,
+        b.review_count,
+        h.hours,
+        b.postal_code,
+        CASE
+            WHEN b.stars BETWEEN 2 AND 3 THEN '2-3 stars'
+            WHEN b.stars BETWEEN 4 AND 5 THEN '4-5 stars'
+        END AS star_rating
 
+FROM (
+	business AS b INNER JOIN category AS c ON b.id = c.business_id
+	)
+INNER JOIN hours AS h ON h.business_id = c.business_id
+WHERE b.stars BETWEEN 3 AND 5
+	AND b.city = 'Toronto'
+	AND c.category = 'Restaurants'
+ORDER BY star_rating	
 		
 		
 2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
 		
 i. Difference 1:
          
-         
+        Businesses that are open tend to have more reviews than those that are closed on average. 
 ii. Difference 2:
-         
+         Ratio of open businesses is more smaller then ratio of ones that are closed
          
          
 SQL code used for analysis:
+SELECT CASE 
+        WHEN is_open = 1
+            THEN 'close'
+        WHEN is_open = 0
+            THEN 'open'
+        END AS is_open
+     ,100 * COUNT(DISTINCT (id)) / (SELECT  count (DISTINCT id) FROM business) as ratio_of_id
+    ,AVG(review_count) AS avg_review_count
+    ,AVG(stars) AS avg_stars
+    ,100 * COUNT(stars) / (SELECT  count (stars) FROM business) AS ratio_of_stars 
+FROM business
+GROUP BY is_open
+
 
 	
 	
@@ -371,12 +400,55 @@ SQL code used for analysis:
 Ideas for analysis include: Parsing out keywords and business attributes for sentiment analysis, clustering businesses to find commonalities or anomalies between them, predicting the overall star rating for a business, predicting the number of fans a user will have, and so on. These are just a few examples to get you started, so feel free to be creative and come up with your own problem you want to solve. Provide answers, in-line, to all of the following:
 	
 i. Indicate the type of analysis you chose to do:
-         
+         Preparing futures for predicting	analysis of rating . 
          
 ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data:
-                           
+       The  popularity of business   depends city, location, on hours open,  number of
+		reviews, star rating of business and categories               
                   
 iii. Output of your finished dataset:
-         
+         +------------------------+---------------+-------+----------+-----------+--------------+----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+| id                     | city          | state | latitude | longitude | review_count | categories                                                                                                                                         | stars |
++------------------------+---------------+-------+----------+-----------+--------------+----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+| -0DET7VdEQOJVJ_v6klEug | Markham       | ON    |  43.8484 |  -79.3487 |           25 | Asian Fusion,Restaurants                                                                                                                           |   3.0 |
+| -2HjuT4yjLZ3b5f_abD87Q | Charlotte     | NC    |  35.1727 |  -80.8755 |            8 | Electronics,Shopping,Automotive,Car Stereo Installation                                                                                            |   3.5 |
+| -3oxnPPPU3YoxO9M1I2idg | Mesa          | AZ    |  33.3799 |  -111.806 |          129 | Restaurants,Bars,Italian,Nightlife,Pizza,Salad,Gluten-Free                                                                                         |   4.0 |
+| -9y2L9qSbqukVl8LzEOGdg | Las Vegas     | NV    |  36.0994 |    -115.1 |           11 | Knitting Supplies,Shopping                                                                                                                         |   3.5 |
+| -CdstAUdEvci8GeJG8owpQ | Las Vegas     | NV    |  36.1465 |  -115.167 |            7 | Home Services,Solar Installation,Heating & Air Conditioning/HVAC                                                                                   |   5.0 |
+| -Eu04UHRqmGGyvYRDY8-tg | Cleveland     | OH    |  41.4847 |  -81.7031 |          723 | Shopping,Food,Seafood Markets,Fruits & Veggies,Ethnic Food,Market Stalls,Farmers Market,Specialty Food,Public Markets,Meat Shops                   |   4.5 |
+| -K4gAv8_vjx8-2BxkVeRkA | Willoughby    | OH    |  41.6399 |  -81.4064 |            5 | Bakeries,Food                                                                                                                                      |   3.5 |
+| -KWHuAnRPvNBIh2yhBC2kg | Peninsula     | OH    |  41.2043 |  -81.4954 |           42 | Bars,Wine Bars,Nightlife                                                                                                                           |   4.5 |
+| -OsPCfouYyJ3vjgOKBtzGA | Hudson        | OH    |  41.2237 |  -81.4394 |            5 | Bars,Restaurants,Nightlife,Pubs                                                                                                                    |   3.0 |
+| -PtTGvWsckUL8tTutHr6Ew | Rocky River   | OH    |  41.4595 |  -81.8587 |           18 | Beauty & Spas,Hair Salons                                                                                                                          |   2.5 |
+| -Ucy8i4uc_OzN8y5fkGVaQ | Scottsdale    | AZ    |  33.6063 |  -111.845 |          223 | Arts & Entertainment,Tours,Local Flavor,Architects,Professional Services,Travel Services,Hotels & Travel,Museums,Architectural Tours               |   4.5 |
+| -_Zd5p9FpWeGZitXFQ5t6Q | Richmond Hill | ON    |  43.8595 |  -79.4337 |            7 | Day Spas,Beauty & Spas                                                                                                                             |   1.5 |
+| -ayZoW_iNDsunYXX_0x1YQ | Phoenix       | AZ    |  33.4664 |  -112.018 |           15 | Shopping,Wholesalers,Restaurant Supplies,Professional Services,Wholesale Stores                                                                    |   3.5 |
+| -d9qyfNhLMQwVVg_raBKeg | York          | ON    |  43.6999 |  -79.4295 |            8 | Restaurants,Bagels,Breakfast & Brunch,Food                                                                                                         |   3.0 |
+| -hjbcaxaU9yYXY2iI-49sw | Phoenix       | AZ    |  33.4805 |  -111.997 |           13 | Home Services,Contractors,Fences & Gates                                                                                                           |   4.0 |
+| -iu4FxdfxN4rU4Fu9BjiFw | Strongsville  | OH    |  41.3141 |  -81.8207 |            3 | Shopping,Bridal,Dry Cleaning & Laundry,Local Services,Sewing & Alterations                                                                         |   4.0 |
+| -j4NsiRzSMrMk2N_bGH_SA | Chandler      | AZ    |  33.3496 |  -111.892 |            5 | Home Services,Self Storage,Movers,Shopping,Local Services,Home Decor,Home & Garden                                                                 |   4.0 |
+| -n27mJ_jQWGCuIukTvg9Mg | Toronto       | ON    |  43.6553 |  -79.4567 |           26 | Cafes,Art Galleries,Arts & Entertainment,Restaurants,Books,Mags,Music & Video,Shopping,Coffee & Tea,Pubs,Bars,Food,Vinyl Records,Nightlife,Arcades |   4.5 |
+| -sBfEBOoKgWcYhLXt7i3nw | Chandler      | AZ    |   33.248 |  -111.837 |           63 | Automotive,Auto Repair,Oil Change Stations,Transmission Repair                                                                                     |   5.0 |
+| -tKN8LLme5IMC9AjzB9y9Q | Edinburgh     | EDH   |  55.9586 |   -3.1717 |            6 | Home & Garden,Shopping                                                                                                                             |   3.5 |
+| -uiBBVWI6tMDm2JFbZFrOw | Toronto       | ON    |  43.6727 |  -79.4142 |            6 | Women's Clothing,Shopping,Fashion                                                                                                                  |   4.5 |
+| 0-aPEeNc2zVb5Gp-i7Ckqg | Gastonia      | NC    |  35.2772 |    -81.06 |            4 | Automotive,Auto Repair                                                                                                                             |   5.0 |
+| 01xXe2m_z048W5gcBFpoJA | Phoenix       | AZ    |   33.478 |  -111.986 |           63 | American (New),Burgers,Fast Food,Restaurants                                                                                                       |   3.5 |
+| 035AcFz2oozXxkaHi83yaQ | Toronto       | ON    |  43.6536 |  -79.3947 |            3 | Fitness & Instruction,Martial Arts,Active Life                                                                                                     |   5.0 |
+| 06I2r8S3tHP_LwGnnkk6Uw | Henderson     | NV    |  36.0021 |  -115.102 |            3 | Truck Rental,Local Services,Self Storage,Parking,Automotive                                                                                        |   3.5 |
++------------------------+---------------+-------+----------+-----------+--------------+----------------------------------------------------------------------------------------------------------------------------------------------------+-------+
+(Output limit exceeded, 25 of 117 total rows shown)
          
 iv. Provide the SQL code you used to create your final dataset:
+
+SELECT B.id
+	,B.city
+	,B.STATE
+	,B.latitude
+	,B.longitude
+	,B.review_count
+	,GROUP_CONCAT(DISTINCT (C.category)) AS categories
+    ,B.stars
+FROM business B
+INNER JOIN hours H ON B.id = H.business_id
+INNER JOIN category C ON B.id = C.business_id
+GROUP BY B.id
